@@ -10,7 +10,7 @@
 
 class Config;
 class QGuiApplication;
-class SWUpdateUI;
+class QQmlApplicationEngine;
 
 class SWUpdateApp : public QObject
 {
@@ -27,9 +27,12 @@ protected Q_SLOTS:
 private:
     Config *m_config;
     QGuiApplication *m_app;
-    SWUpdateUI *m_ui;
+    QQmlApplicationEngine *m_engine;
 
     int m_ipcFd;
+
+    void registerQmlTypes();
+    void setupQmlContextProperties();
 
 };
 

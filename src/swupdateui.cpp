@@ -6,6 +6,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QScreen>
 
 #include "swupdateui.h"
 
@@ -21,6 +22,10 @@ SWUpdateUI::SWUpdateUI(QGuiApplication *app)
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
+
+    QScreen *screen = app->primaryScreen();
+    m_engine->rootContext()->setContextProperty("swidth", int(screen->geometry().width()));
+    m_engine->rootContext()->setContextProperty("sheight", int(screen->geometry().width()));
 
     registerQmlTypes();
     setupQmlContextProperties();

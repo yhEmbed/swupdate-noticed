@@ -2,7 +2,6 @@ set(TS_FILES translations/SWUpdateNoticed_zh_CN.ts)
 
 set(SOURCES
     main.cpp
-    swupdateui.cpp
     swupdateapp.cpp
     qml.qrc
     ${TS_FILES}
