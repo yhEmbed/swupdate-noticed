@@ -5,11 +5,13 @@
 
 UpgradeWindows::UpgradeWindows(QApplication *myapp,QQmlApplicationEngine *myengine)
 {
+    #ifndef UBUNTU_DEBUG
     m_ipcFd = progress_ipc_connect(true);
     QSocketNotifier *ipcConnect = new QSocketNotifier(m_ipcFd, QSocketNotifier::Read, this);
     qDebug("m_ipcFd:%d\n", m_ipcFd);
     connect(ipcConnect, &QSocketNotifier::activated, this, &UpgradeWindows::onActivated);
     qDebug("UpgradeWindows connect success\n");
+    #endif
 
 }
 
@@ -32,6 +34,7 @@ void UpgradeWindows::onActivated()
     struct progress_msg msg;
     static int prog_p = 0;
     QString str;
+    #ifndef UBUNTU_DEBUG
     if (progress_ipc_receive(&m_ipcFd, &msg) <= 0){
         return;
     }else {
@@ -64,6 +67,7 @@ void UpgradeWindows::onActivated()
 
     if (msg.status == FAILURE || msg.status == FAILURE)
         this->swupdateStart = false;
+    #endif
 }
 
 //void UpgradeWindows::onActivated()

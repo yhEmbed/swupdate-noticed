@@ -7,7 +7,6 @@
 #include <QMutex>
 
 
-
 class UpgradeWindows : public QObject
 {
 

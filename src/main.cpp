@@ -24,15 +24,22 @@ int main(int argc, char *argv[])
     QRect screenRect =  screen->availableVirtualGeometry();
     int screenWidth = screenRect.width(); // 设置全屏
     int screenHeight = screenRect.height(); // 设置全屏
-//    int screenWidth = 1920; // 640
-//    int screenHeight = 1080; // 480
+//    int screenWidth = 640; // 640
+//    int screenHeight = 480; // 480
     /// 线程安全的懒汉单例
     UpgradeWindows *upgradeWin = UpgradeWindows::getInstance(&app,&engine);
     upgradeWin->swupdateStart = false;
     engine.rootContext()->setContextProperty("gScreenWidth",screenWidth);
+#ifdef UBUNTU_DEBUG
+    engine.rootContext()->setContextProperty("gUbuntuDebug",1);
+#else
+    engine.rootContext()->setContextProperty("gUbuntuDebug",0);
+#endif
 //    engine.rootContext()->setContextProperty("gVisible",upgradeWin->swupdateStart);
     engine.rootContext()->setContextProperty("gScreenHeight",screenHeight);
     engine.rootContext()->setContextProperty("gUpgradeWin",upgradeWin);
+    engine.rootContext()->setContextProperty("gRatioW",(float)screenWidth/(float)defaultWidth);
+    engine.rootContext()->setContextProperty("gRatioH",(float)screenHeight/(float)defaultHeight);
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
