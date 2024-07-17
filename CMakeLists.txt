@@ -10,7 +10,8 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+add_definitions(-DUBUNTU_DEBUG)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/swupdate/inc/)
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check http://doc.qt.io/qt-5/deployment-android.html for more information.
 # They need to be set before the find_package(Qt5 ...) call.
@@ -29,11 +30,13 @@ find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 if(ANDROID)
     add_library(ota-upgrade-ui SHARED
       src/main.cpp
+      src/upgradewindows.cpp
       qml.qrc
     )
 else()
     add_executable(ota-upgrade-ui
       src/main.cpp
+      src/upgradewindows.cpp
       qml.qrc
     )
 endif()
