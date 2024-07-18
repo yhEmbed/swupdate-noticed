@@ -37,6 +37,7 @@ protected Q_SLOTS:
 signals:
     void qmlVisibleChanged(bool visible);
     void qmlSwupdateProgChanged(QString str, int pProgress);
+    void qmlImageNameChanged(QString str);
 
 };
 

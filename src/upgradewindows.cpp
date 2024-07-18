@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <QSocketNotifier>
 #include "swupdate/inc/progress_ipc.h"
+#include <QDebug>
 
 UpgradeWindows::UpgradeWindows(QGuiApplication *myapp,QQmlApplicationEngine *myengine)
 {
@@ -45,19 +46,22 @@ void UpgradeWindows::onActivated()
         switch (msg.cur_step) {
         case 1:
             emit this->qmlVisibleChanged(true);
-            str.sprintf("setup %d of %d: Download firmware...", msg.cur_step, msg.nsteps);
+            str = QString("image: %1").arg(msg.cur_image);
+            qDebug() << str;
+            emit this->qmlImageNameChanged(str);
+            str = QString("setup %1 of %2: Download firmware...").arg(msg.cur_step).arg(msg.nsteps);
             qDebug() << str;
             emit this->qmlSwupdateProgChanged(str, msg.cur_percent);
             break;
         case 2:
             emit this->qmlVisibleChanged(true);
-            str.sprintf("setup %d of %d: Upgrade firmware...", msg.cur_step, msg.nsteps);
+            str = QString("setup %1 of %2: Upgrade firmware...").arg(msg.cur_step).arg(msg.nsteps);
             qDebug() << str;
             emit this->qmlSwupdateProgChanged(str, msg.cur_percent);
             break;
         case 3:
             emit this->qmlVisibleChanged(true);
-            str.sprintf("setup %d of %d: Success", msg.cur_step, msg.nsteps);
+            str = QString("setup %1 of %2: Success").arg(msg.cur_step).arg(msg.nsteps);
             qDebug() << str;
             emit this->qmlSwupdateProgChanged(str, msg.cur_percent);
             break;

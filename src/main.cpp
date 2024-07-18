@@ -21,11 +21,19 @@ int main(int argc, char *argv[])
     int defaultWidth = 640;
     int defaultHeight = 480;
     QScreen *screen = QGuiApplication::primaryScreen ();
-    QRect screenRect =  screen->availableVirtualGeometry();
+//    QRect screenRect =  screen->availableVirtualGeometry();
 //    int screenWidth = screenRect.width(); // 设置全屏
 //    int screenHeight = screenRect.height(); // 设置全屏
-    int screenWidth = 1280; // 640
-    int screenHeight = 768; // 480
+      int screenWidth = screen->geometry().width();
+      int screenHeight = screen->geometry().height();
+//    int screenWidth = 1280; // 640
+//    int screenHeight = 768; // 480
+
+    if (screenWidth < screenHeight){
+        // Portrait orientation
+        screenHeight = screenWidth / 1.77;  //1.77 is 16:9 aspect ratio
+    }
+
     /// 线程安全的懒汉单例
     UpgradeWindows *upgradeWin = UpgradeWindows::getInstance(&app,&engine);
     upgradeWin->swupdateStart = false;

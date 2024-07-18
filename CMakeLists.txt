@@ -1,47 +1,35 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(ota-upgrade-ui LANGUAGES CXX)
+set(TARGET_NAME swupdate_noticed)
+
+project(${TARGET_NAME} LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-DUBUNTU_DEBUG)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/swupdate/inc/)
-# QtCreator supports the following variables for Android, which are identical to qmake Android variables.
-# Check http://doc.qt.io/qt-5/deployment-android.html for more information.
-# They need to be set before the find_package(Qt5 ...) call.
-
-#if(ANDROID)
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-#    if (ANDROID_ABI STREQUAL "armeabi-v7a")
-#        set(ANDROID_EXTRA_LIBS
-#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libcrypto.so
-#            ${CMAKE_CURRENT_SOURCE_DIR}/path/to/libssl.so)
-#    endif()
-#endif()
-
 find_package(Qt5 COMPONENTS Core Quick REQUIRED)
 
-if(ANDROID)
-    add_library(ota-upgrade-ui SHARED
-      src/main.cpp
-      src/upgradewindows.cpp
-      qml.qrc
-    )
-else()
-    add_executable(ota-upgrade-ui
-      src/main.cpp
-      src/upgradewindows.cpp
-      qml.qrc
-    )
-endif()
+set(SOURCES
+    src/main.cpp
+    src/upgradewindows.cpp
+    qml.qrc
+)
+add_executable(${TARGET_NAME} ${SOURCES})
 
-target_compile_definitions(ota-upgrade-ui
+#add_definitions(-DUBUNTU_DEBUG)
+find_library(SWUPDATE_LIBRARY NAMES swupdate)
+target_link_libraries(${TARGET_NAME} PRIVATE ${SWUPDATE_LIBRARY})
+
+target_compile_definitions(${TARGET_NAME}
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(ota-upgrade-ui
+target_link_libraries(${TARGET_NAME}
   PRIVATE Qt5::Core Qt5::Quick)
+
+INSTALL(TARGETS ${TARGET_NAME}
+        RUNTIME DESTINATION /usr/bin)
+

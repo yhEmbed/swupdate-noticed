@@ -8,47 +8,58 @@ Rectangle {
     // Variables need to be defined in the outermost Rectangle layer
     property int percent: 10
 
-    width: parent.width
-    height: parent.height
+    width: mainWinId.width
+    height: mainWinId.height
     anchors.centerIn: parent
     color: "white"
-    // ubuntu debug opacity=0.8
     opacity: gUbuntuDebug === 1 ? 1 : 0
     Component.onCompleted: {
         console.log(gRatioW,gRatioH)
         console.log(width,height)
-
     }
+
+    Connections{
+        target: gUpgradeWin
+        function onQmlVisibleChanged(visible){
+            console.log("onQmlVisibleChanged visible:", visible)
+            colId.visible = visible;
+            imgId.visible = visible;
+            upgradeWindowsId.opacity = 1;
+        }
+
+        function onQmlSwupdateProgChanged(str, pProgress){
+            console.log("slotSwupdateProgChange str:", str,", progress:", pProgress)
+            upgradeWindowsId.percent = pProgress;
+            upgradePercentTextId.text = upgradeWindowsId.percent + "%"
+            upgradeStateTextId.text = str;
+        }
+
+        function onQmlImageNameChanged(str){
+            imageNameTextId.text = str;
+        }
+    }
+
     Image {
         id: imgId
+        visible: gUbuntuDebug === 1 ? true : false
         source: "../image/background.png"
         anchors.fill: parent
     }
-
-    Column {
+    Item {
         id: colId
         anchors.fill: parent
-        width: upgradeWindowsId.width
-        height: upgradeWindowsId.height
-//        anchors.fill: parent
-
+        visible: gUbuntuDebug === 1 ? true : false
         Rectangle{
             id: recTopId
             width: parent.width * 0.58
             height: parent.height * 0.26
             anchors.horizontalCenter: colId.horizontalCenter
             y: parent.height * 0.046
-            Component.onCompleted: {
-                console.log(gRatioW,gRatioH)
-                console.log(width,height)
-            }
             color: "white"
-            opacity: gUbuntuDebug === 1 ? 0.8 : 0
-            radius: height / 10
+            opacity: 0.8
+            radius: upgradeWindowsId.height / 100
             Column{
                 id: recTopColId
-                width: parent.width
-                height: parent.height
                 anchors.fill: parent
                 Item{
                     width: parent.width * 0.9
@@ -62,6 +73,7 @@ Rectangle {
                     anchors.horizontalCenter: parent.horizontalCenter
                     opacity:1
                     Row{
+                        anchors.fill: parent
                         Text {
                             text: qsTr("SW")
                             font.pixelSize: recTopColId.height * 0.2
@@ -96,43 +108,40 @@ Rectangle {
             anchors.top: recTopId.bottom
             anchors.topMargin: parent.height * 0.04
             color: "white"
-            opacity: gUbuntuDebug === 1 ? 0.8 : 0
-            radius: height / 10
+            opacity: 0.8
+            radius: upgradeWindowsId.height / 100
             Column{
                 id: recMidColId
-                width: parent.width
-                height: parent.height
                 anchors.fill: parent
+                /* tool icon */
                 Item{
                     id: recMidColRec1Id
                     width: parent.width
                     height: parent.height * 0.33
                     anchors.horizontalCenter: parent.horizontalCenter
-                    Row{
-                        width: parent.width
-                        height: parent.height
-                        Item{
-                            id: recMidColRec1Item2Id
-                            width: parent.height * 0.2
-                            height: parent.height * 0.2
-                            anchors.left: parent.left
-                            anchors.leftMargin: parent.width * 0.013
-                            anchors.verticalCenter: parent.verticalCenter
-                            Image {
-                                source: "../image/iconPark-tool.png"
-                                anchors.fill: parent
-                            }
-                        }
-                        Text {
-                            text: qsTr("Software Update")
-                            font.pixelSize: parent.height * 0.3
-                            color: "black"
-                            anchors.left: recMidColRec1Item2Id.right
-                            anchors.leftMargin: parent.width * 0.02
-                            anchors.verticalCenter: parent.verticalCenter
+                    Item{
+                        id: recMidColRec1Item2Id
+                        width: parent.height * 0.2
+                        height: parent.height * 0.2
+                        anchors.left: parent.left
+                        anchors.leftMargin: parent.width * 0.013
+                        anchors.verticalCenter: parent.verticalCenter
+                        Image {
+                            source: "../image/iconPark-tool.png"
+                            anchors.fill: parent
                         }
                     }
+                    Text {
+                        text: qsTr("Software Update")
+                        font.pixelSize: parent.height * 0.3
+                        color: "black"
+                        anchors.left: recMidColRec1Item2Id.right
+                        anchors.leftMargin: parent.width * 0.02
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
                 }
+                /* upgrade status info*/
                 Item{
                     id: recMidColRec2Id
                     width: parent.width
@@ -143,48 +152,58 @@ Rectangle {
                         width: parent.width * 0.95
                         height: parent.height * 0.7
                         anchors.centerIn: parent
-                        radius: height / 10
+                        radius: upgradeWindowsId.height / 100
                         color: "white"
-//                        opacity: 0.8
-                        Row{
-                            width: parent.width
-                            height: parent.height
-                            Item{
-                                id: recMidColRec2Item2Id
-                                width: parent.height * 0.4
-                                height: parent.height * 0.4
-                                anchors.left: parent.left
-                                anchors.leftMargin: parent.width * 0.013
-                                anchors.verticalCenter: parent.verticalCenter
-                                Image {
-                                    source: "../image/iconPark-tool2.png"
-                                    anchors.fill: parent
-                                }
-                            }
-                            Text {
-                                id: upgrdProcessTextId
-                                text: qsTr("Update not started.")
-                                font.pixelSize: parent.height * 0.3
-                                color: "black"
-                                anchors.left: recMidColRec2Item2Id.right
-                                anchors.leftMargin: parent.width * 0.02
-                                anchors.verticalCenter: parent.verticalCenter
+
+                        Item{
+                            id: recMidColRec2Item2Id
+                            width: parent.height * 0.4
+                            height: parent.height * 0.4
+                            anchors.left: parent.left
+                            anchors.leftMargin: parent.width * 0.013
+                            anchors.verticalCenter: parent.verticalCenter
+                            Image {
+                                source: "../image/iconPark-tool2.png"
+                                anchors.fill: parent
                             }
                         }
+                        Text {
+                            id: upgradeStateTextId
+                            text: qsTr("Update not started.")
+                            font.pixelSize: parent.height * 0.3
+                            color: "black"
+                            anchors.left: recMidColRec2Item2Id.right
+                            anchors.leftMargin: parent.width * 0.02
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
+
                     }
                 }
-
+                /* upgraded progress bar*/
                 Item{
                     id: recMidColRec3Id
                     width: parent.width
                     height: parent.height * 0.33
                     anchors.horizontalCenter: parent.horizontalCenter
+                    /* upgrade image name */
+                    Text{
+                        id: imageNameTextId
+                        width: parent.width * 0.95
+                        height: parent.height * 0.3
+                        anchors.top: parent.top
+                        anchors.topMargin: parent.height * 0.09
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: qsTr("openlinux-image-weston-openlinux-atk-rk3568-evb.ext4.gz")
+                        font.pixelSize: parent.height * 0.2
+                    }
 
+                    /* progress bar*/
                     Rectangle{
                         id: progressRect
                         width: parent.width * 0.95
                         height: parent.height * 0.3
-                        anchors.centerIn: parent
+                        anchors.top: imageNameTextId.bottom
+                        anchors.horizontalCenter: parent.horizontalCenter
                         color: "white"
 
                         Rectangle{
@@ -195,13 +214,13 @@ Rectangle {
                             color: "#0e56f2"
                         }
                         Text {
-                            id: progressRectTxt
-                            width: 50
-                            height: 30
+                            id: upgradePercentTextId
+                            width: parent.width * 0.1
+                            height: parent.height
                             anchors.horizontalCenter: parent.horizontalCenter
                             anchors.verticalCenter: parent.verticalCenter
                             text: qsTr("0%")
-                            font.pixelSize: 24
+                            font.pixelSize: upgradeWindowsId.height * 0.03
                         }
                     }
 
@@ -211,30 +230,32 @@ Rectangle {
         Rectangle{
             id: recBottomId
             width: upgradeWindowsId.width * 0.58
-            height: upgradeWindowsId.height  * 0.2
+            height: upgradeWindowsId.height  * 0.1
             anchors.horizontalCenter: colId.horizontalCenter
             anchors.top: recMidId.bottom
             anchors.topMargin: upgradeWindowsId.height * 0.025
             color: "white"
-            opacity: gUbuntuDebug === 1 ? 0.8 : 0
-            radius: height / 10
-            Column{
-                width: parent.width
-                height: parent.height
+            opacity: 0.8
+            radius: upgradeWindowsId.height / 100
+            Item{
+                id: column
                 anchors.fill: parent
+                /* open message button */
                 Item{
                     id: messageItem1Id
-                    width: parent.width * 0.95
-                    height: parent.height * 0.3
+                    width: parent.width / 2
+                    height: upgradeWindowsId.height * 0.05
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    anchors.topMargin: parent.height * 0.1
+                    anchors.left: parent.left
+                    anchors.topMargin: upgradeWindowsId.height * 0.02
+                    anchors.leftMargin: upgradeWindowsId.width * 0.01
                     Item{
                         id: messageIconId
-                        width: parent.height * 0.2
-                        height: parent.height * 0.2
+                        width: upgradeWindowsId.height * 0.02
+                        height: width
                         anchors.left: parent.left
-                        anchors.leftMargin: parent.width * 0.013
+                        anchors.leftMargin: upgradeWindowsId.width * 0.01
                         anchors.verticalCenter: parent.verticalCenter
                         Image {
                             source: "../image/iconMesg.png"
@@ -242,156 +263,123 @@ Rectangle {
                         }
                     }
                     Text {
+                        id: msgTextId
                         text: qsTr("Messages")
-                        font.pixelSize: recMidColId.height * 0.1
+                        font.pixelSize: upgradeWindowsId.height * 0.025
                         color: "#2766f0"
                         anchors.left: messageIconId.right
-                        anchors.leftMargin: parent.width * 0.02
+                        anchors.leftMargin: upgradeWindowsId.height * 0.02
                         anchors.verticalCenter: parent.verticalCenter
                     }
+                    MouseArea{
+                        anchors.fill: messageItem1Id
+                        onClicked: {
+                            msgItmId.visible = !msgItmId.visible
+                            console.log("msgItmId.visible:",  msgItmId.visible)
+                            if(msgItmId.visible == true){
+                                recBottomId.height = upgradeWindowsId.height  * 0.3
+                                msgItmId.height = recBottomId.height * 0.6
+                            } else{
+                                recBottomId.height = upgradeWindowsId.height  * 0.1
+                                msgItmId.height = 0
+                            }
+                        }
+                    }
+
                 }
+                /* message display */
                 Item{
+                    id: msgItmId
                     width: parent.width * 0.95
-                    height: parent.height * 0.4
+                    height: 0
+                    clip: false
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: messageItem1Id.bottom
-                    anchors.topMargin: parent.height * 0.05
-//                    color: "blue"
-//                    opacity: 0.2
-                    ScrollView{
-                        width: parent.width
-                        height: parent.height
-                        Text {
-                            id: logText
-                            text: "Log Messages:"
-                            anchors.top: parent.top
-                            anchors.left: parent.left
-                            font.pixelSize: 18
+                    anchors.topMargin: upgradeWindowsId.height * 0.010
+                    visible: false
+                    ScrollView {
+                        anchors.fill: parent
+                        background: Rectangle {
+                            anchors.fill: parent
+                            color: "white"
+                            border.color: "gray"
+                            radius: upgradeWindowsId.height / 100
+                        }
+                        TextArea {
+                            id: contentText
+                            anchors.fill: parent
+                            readOnly: true
+                            font.pixelSize: upgradeWindowsId.height * 0.025
+                            property int preContentHeight: 0
+                            wrapMode: TextArea.Wrap;
+                            selectByMouse: true;
+                            color: "black"
                         }
                     }
                 }
             }
         }
+        /* ubuntu debug button */
+        Button{
+            width: 100
+            height: 50
+            visible: gUbuntuDebug === 1 ? true : false
+            text: "visiable"
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    imgId.visible = !imgId.visible
+                    colId.visible = !colId.visible
+                }
+            }
+        }
+        Button{
+            width: 100
+            height: 50
+            visible: gUbuntuDebug === 1 ? true : false
+            y: 100
+            text: "percent++"
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    percent += 10
+                }
+            }
+        }
+        Button{
+            width: 100
+            height: 50
+            visible: gUbuntuDebug === 1 ? true : false
+            y: 200
+            text: "percent--"
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    percent -= 10
+
+                }
+            }
+        }
+        Button{
+            width: 100
+            height: 50
+            visible: gUbuntuDebug === 1 ? true : false
+            y: 300
+            text: "send msg"
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    contentText.text = contentText.text + "test message!"
+                }
+            }
+        }
+        /* ubuntu debug button, end */
     }
-
-    //ubuntu debug
-//    Button{
-//        width: 50
-//        height: 50
-//        x:20
-//        text: "visible"
-//        onClicked: {
-//            upgrade_col.visible = !upgrade_col.visible;
-//        }
-//    }
-//    Button{
-//        width: 50
-//        height: 50
-//        x:100
-//        onClicked: {
-//            if(progressBar.value > 0.8 && progressBar.value <= 0.9)
-//                statusText.text = "升级即将完成..."
-//            else if(progressBar.value > 0.9)
-//                statusText.text = "升级完成，即将重启..."
-//            progressBar.value += 0.1;
-//            upgradeWindowsId.percent +=10;
-//            progressRectTxt.text = upgradeWindowsId.percent + "%";
-//            console.log("progressBar.value", progressBar.value)
-//            console.log("upgradeWindowsId.percent", upgradeWindowsId.percent, progressRect2.width)
-//        }
-//        text: "+"
-//    }
-//    Button{
-//        width: 50
-//        height: 50
-//        x:200
-//        onClicked: {
-//            progressBar.value -= 0.1;
-//            upgradeWindowsId.percent -=10;
-//            progressRectTxt.text = upgradeWindowsId.percent + "%";
-//            console.log("progressBar.value", progressBar.value)
-//            console.log("upgradeWindowsId.percent", upgradeWindowsId.percent, progressRect2.width)
-//        }
-//        text: "-"
-//    }
-
-//    Column {
-//        id: upgrade_col
-//        anchors.horizontalCenter:  parent.horizontalCenter
-//        anchors.verticalCenter:   parent.verticalCenter
-//        width: upgradeWindowsId.width
-//        height: upgradeWindowsId.height
-//        spacing: 50
-//        // The window is not displayed by default
-//        visible: false
-//        function slotSwupdateProgChange(str, progress){
-//            console.log("slotSwupdateProgChange str:", str,", progress:", progress)
-//            upgradeWindowsId.percent = progress;
-//            progressRectTxt.text = upgradeWindowsId.percent + "%"
-//            statusText.text = str;
-//        }
-
-//        Connections{
-//            target: gUpgradeWin
-//            function onQmlVisibleChanged(visible){
-//                console.log("onQmlVisibleChanged visible:", visible)
-//                upgrade_col.visible = visible
-//                upgradeWindowsId.opacity = 0.8
-//            }
-//            function onQmlSwupdateProgChanged(str, pProgress){
-//                upgrade_col.slotSwupdateProgChange(str, pProgress);
-//            }
-//        }
-
-//        Text {
-//            text: "OTA Upgrade"
-//            anchors.horizontalCenter: upgrade_col.horizontalCenter
-//            height: 30
-//            font.pixelSize: 24
-//            font.bold: true
-//        }
-
-//        Rectangle{
-//            id: progressRect
-//            width: upgrade_col.width-100*gRatioW
-//            height: 30
-//            anchors.horizontalCenter:  upgrade_col.horizontalCenter
-//            color: "white"
-//            radius: height/2
-
-//            Rectangle{
-//                id: progressRect2
-//                width: (upgradeWindowsId.percent / 100) * parent.width
-//                height: parent.height
-//                radius: parent.radius
-//                color: "green"
-//            }
-//            Text {
-//                id: progressRectTxt
-//                width: 50
-//                height: 30
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                anchors.verticalCenter: parent.verticalCenter
-//                text: qsTr("0%")
-//                font.pixelSize: 24
-//            }
-//        }
-//        //ubuntu调试使用
-////        ProgressBar {
-////            enabled: false
-////            id: progressBar
-////            width: upgrade_col.width - 100
-////            height: 30
-////            anchors.horizontalCenter:  upgrade_col.horizontalCenter
-////            value: 0
-////        }
-
-//        Text {
-//            id: statusText
-//            anchors.horizontalCenter: upgrade_col.horizontalCenter
-//            anchors.margins: 10
-//            text: "waitting for upgrade..."
-//            font.pixelSize: 18
-//        }
-//    }
 }
+
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:1.75;height:480;width:640}
+}
+##^##*/
